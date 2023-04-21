@@ -1,8 +1,6 @@
 package router
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"github.com/ordomigato/con-game/controller"
 	"github.com/ordomigato/con-game/middleware"
@@ -19,15 +17,11 @@ func SetupRouter() *gin.Engine {
 	router.Use(middleware.ErrorHandler)
 
 	api := router.Group("/api")
-	// api.GET("/join", func(c *gin.Context) {
-	// 	c.JSON(200, RoomController.Join(c))
-	// })
+	api.GET("/join", func(c *gin.Context) {
+		GameController.Join(c)
+	})
 	api.POST("/create", func(c *gin.Context) {
-		body, err := GameController.Create(c)
-		if err != nil {
-			return
-		}
-		c.JSON(http.StatusOK, body)
+		GameController.Create(c)
 	})
 
 	return router

@@ -1,13 +1,16 @@
 package service
 
 import (
+	"net/http"
+
+	"github.com/gin-gonic/gin"
 	"github.com/ordomigato/con-game/entity"
 	"github.com/ordomigato/con-game/utils"
 )
 
 type GameService interface {
-	Create(entity.GameConfig) (*entity.Game, error)
-	// Join(entity.User) entity.Game
+	Create(ctx *gin.Context, gameConfig entity.GameConfig)
+	Join(ctx *gin.Context, roomCode string, username string)
 }
 
 type gameService struct {
@@ -29,7 +32,7 @@ func generateUniqueGameCode(usedCodes []string) string {
 }
 
 // Create game room
-func (service *gameService) Create(gameConfig entity.GameConfig) (*entity.Game, error) {
+func (service *gameService) Create(ctx *gin.Context, gameConfig entity.GameConfig) {
 	useCodes := utils.GetKeysFromMap(service.gameRooms)
 	code := generateUniqueGameCode(useCodes)
 	gameConfig.RoomCode = code
@@ -37,11 +40,22 @@ func (service *gameService) Create(gameConfig entity.GameConfig) (*entity.Game, 
 		GameConfig: gameConfig,
 	}
 	service.gameRooms[code] = gameRoom
-	return &gameRoom, nil
+	ctx.JSON(http.StatusOK, gameRoom)
 }
 
-// func (service *gameService) Join(roomCode string, user entity.User) entity.Game {
-// find room
-// add user to room and setup socket connection
-// return game room
-// }
+func (service *gameService) Join(ctx *gin.Context, roomCode string, username string) {
+	gameRoom, ok := service.gameRooms[roomCode]
+	if !ok {
+		ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{
+			"errors": "no room found",
+		})
+		return
+	}
+	gameRoom.Users = append(
+		gameRoom.Users,
+		entity.User{
+			Name: username,
+		},
+	)
+	ctx.JSON(http.StatusOK, gameRoom)
+}

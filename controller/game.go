@@ -6,9 +6,18 @@ import (
 	"github.com/ordomigato/con-game/service"
 )
 
+type JoinRequestBody struct {
+	Username string `json:"username" binding:"required"`
+	GameCode string `json:"gameCode" binding:"required"`
+}
+
+type CreateRequestBody struct {
+	GameConfig entity.GameConfig `json:"gameConfig" binding:"required"`
+}
+
 type GameController interface {
-	Create(ctx *gin.Context) (*entity.Game, error)
-	// Join(ctx *gin.Context) entity.Game
+	Create(ctx *gin.Context)
+	Join(ctx *gin.Context)
 }
 
 type controller struct {
@@ -21,18 +30,20 @@ func New(service service.GameService) GameController {
 	}
 }
 
-func (c *controller) Create(ctx *gin.Context) (*entity.Game, error) {
-	var gameConfig entity.GameConfig
-	err := ctx.BindJSON(&gameConfig)
+func (c *controller) Create(ctx *gin.Context) {
+	reqBody := CreateRequestBody{}
+	err := ctx.BindJSON(&reqBody)
 	if err != nil {
-		return nil, err
+		return
 	}
-	game, err := c.service.Create(gameConfig)
-	return game, err
+	c.service.Create(ctx, reqBody.GameConfig)
 }
 
-// func (c *controller) Join(ctx *gin.Context) entity.Game {
-// 	var gameConfig entity.GameConfig
-// 	ctx.BindJSON(&gameConfig)
-// 	return c.service.Join(gameConfig)
-// }
+func (c *controller) Join(ctx *gin.Context) {
+	reqBody := JoinRequestBody{}
+	err := ctx.BindJSON(&reqBody)
+	if err != nil {
+		return
+	}
+	c.service.Join(ctx, reqBody.GameCode, reqBody.Username)
+}
