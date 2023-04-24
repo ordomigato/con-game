@@ -1,5 +1,5 @@
 package entity
 
-type User struct {
+type Players struct {
 	Name string `json:"name"`
 }

@@ -2,9 +2,10 @@ package entity
 
 type Game struct {
 	GameConfig GameConfig `json:"gameConfig"`
-	Users      []User     `json:"users"`
+	Players    []Players  `json:"players"`
 }
 
 type GameConfig struct {
-	RoomCode string `json:"roomCode"`
+	RoomCode   string `json:"roomCode"`
+	MaxPlayers int    `json:"maxPlayers" binding:"required"`
 }

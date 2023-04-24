@@ -9,7 +9,11 @@ import (
 func ErrorHandler(c *gin.Context) {
 	c.Next()
 
-	for _, err := range c.Errors {
-		fmt.Printf("Error: %s\n", err)
+	if len(c.Errors) > 0 {
+		for _, err := range c.Errors {
+			fmt.Printf("Error: %s\n", err)
+		}
+
+		c.JSON(-1, c.Errors[0])
 	}
 }

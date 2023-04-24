@@ -7,8 +7,8 @@ import (
 )
 
 type JoinRequestBody struct {
-	Username string `json:"username" binding:"required"`
-	GameCode string `json:"gameCode" binding:"required"`
+	PlayerName string `json:"name" binding:"required"`
+	GameCode   string `json:"gameCode" binding:"required"`
 }
 
 type CreateRequestBody struct {
@@ -45,5 +45,5 @@ func (c *controller) Join(ctx *gin.Context) {
 	if err != nil {
 		return
 	}
-	c.service.Join(ctx, reqBody.GameCode, reqBody.Username)
+	c.service.Join(ctx, reqBody.GameCode, reqBody.PlayerName)
 }

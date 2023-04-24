@@ -1,0 +1,21 @@
+a.btn,
+button {
+    background-color: #3c3c3c;
+    color: white;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    border: none;
+    margin-bottom: 0.5rem;
+    min-width: 100px;
+}
+
+a.btn {
+    display: inline-block;
+}
+
+a.btn:hover,
+button:hover {
+    background-color: #acacac;
+}

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -43,7 +44,7 @@ func (service *gameService) Create(ctx *gin.Context, gameConfig entity.GameConfi
 	ctx.JSON(http.StatusOK, gameRoom)
 }
 
-func (service *gameService) Join(ctx *gin.Context, roomCode string, username string) {
+func (service *gameService) Join(ctx *gin.Context, roomCode string, playerName string) {
 	gameRoom, ok := service.gameRooms[roomCode]
 	if !ok {
 		ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{
@@ -51,11 +52,27 @@ func (service *gameService) Join(ctx *gin.Context, roomCode string, username str
 		})
 		return
 	}
-	gameRoom.Users = append(
-		gameRoom.Users,
-		entity.User{
-			Name: username,
+	for _, p := range gameRoom.Players {
+		if p.Name == playerName {
+			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+				"errors": "username already taken",
+			})
+			return
+		}
+	}
+	if len(gameRoom.Players) == gameRoom.GameConfig.MaxPlayers {
+		ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+			"errors": "room is full",
+		})
+		return
+	}
+	gameRoom.Players = append(
+		service.gameRooms[roomCode].Players,
+		entity.Players{
+			Name: playerName,
 		},
 	)
+	service.gameRooms[roomCode] = gameRoom
+	fmt.Println(gameRoom.Players)
 	ctx.JSON(http.StatusOK, gameRoom)
 }
